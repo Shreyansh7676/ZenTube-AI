@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import GenericProxyConfig
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
@@ -19,6 +20,8 @@ load_dotenv()
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 PROXY_URL = os.getenv("PROXY_URL")  # e.g. https://user:pass@proxy-host:port
+PROXY_USERNAME = os.getenv("PROXY_USERNAME")
+PROXY_PASSWORD = os.getenv("PROXY_PASSWORD")
 
 # ── FastAPI app ──────────────────────────────
 app = FastAPI(title="ZenTube AI API")
@@ -35,7 +38,15 @@ app.add_middleware(
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 openai_client = OpenAI()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=400)
-ytt_api = YouTubeTranscriptApi(proxy=PROXY_URL) if PROXY_URL else YouTubeTranscriptApi()
+if PROXY_URL:
+    ytt_api = YouTubeTranscriptApi(
+        proxy_config=GenericProxyConfig(
+            http_url=PROXY_URL,
+            https_url=PROXY_URL,
+        )
+    )
+else:
+    ytt_api = YouTubeTranscriptApi()
 
 
 # ── Pydantic models ─────────────────────────
