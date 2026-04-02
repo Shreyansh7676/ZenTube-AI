@@ -6,7 +6,7 @@ const API_BASE = import.meta.env.VITE_HOSTED_API;
  * @returns {Promise<{video_id: string, status: string, chunks: number}>}
  */
 export async function indexVideo(youtubeUrl) {
-  const res = await fetch(`${API_BASE}/api/index`, {
+  const res = await fetch(`${API_BASE}api/index`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ youtube_url: youtubeUrl }),
@@ -25,7 +25,7 @@ export async function indexVideo(youtubeUrl) {
  * @returns {Promise<{answer: string}>}
  */
 export async function chatWithVideo(videoId, question) {
-  const res = await fetch(`${API_BASE}/api/chat`, {
+  const res = await fetch(`${API_BASE}api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ video_id: videoId, question }),
