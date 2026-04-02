@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_BACKEND_API;
+const API_BASE = import.meta.env.VITE_HOSTED_API;
 
 /**
  * Index a YouTube video — sends the URL to the backend for transcript extraction & embedding.
