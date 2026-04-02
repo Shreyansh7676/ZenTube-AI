@@ -131,14 +131,14 @@ def index_video(req: IndexRequest):
         chunks=len(chunks),
     )
 
-@app.route('/api/health', methods=['GET'])
+@app.get('/api/health')
 def health_check():
     return jsonify({
         'status': 'OK',
         'message': 'Your API is running',
         'timestamp': datetime.utcnow().isoformat()
     })
-    
+
 @app.post("/api/chat", response_model=ChatResponse)
 def chat_with_video(req: ChatRequest):
     """Retrieve relevant transcript chunks and answer the user's question via RAG."""
