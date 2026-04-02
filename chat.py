@@ -8,11 +8,6 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Document
 import os
 
-# qdrant_client = QdrantClient(
-#     url="https://a2cfa293-78bf-4587-acc4-d3a4e09da601.us-east-1-1.aws.cloud.qdrant.io:6333", 
-#     api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.LwO75b9eX7rlihtDssUV1SWjHmb1rTidOeE_sq8RCMs",
-#     cloud_inference=True
-# )
 
 
 
