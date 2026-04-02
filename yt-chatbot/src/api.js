@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_BACKEND_API;
 
 /**
  * Index a YouTube video — sends the URL to the backend for transcript extraction & embedding.
