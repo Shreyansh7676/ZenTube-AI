@@ -7,9 +7,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import GenericProxyConfig
 from langchain_core.documents import Document
+from langchain_community.document_loaders import YoutubeLoader
+
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
@@ -19,9 +19,6 @@ load_dotenv()
 
 QDRANT_URL = os.getenv("QDRANT_URL")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-PROXY_URL = os.getenv("PROXY_URL")  # e.g. https://user:pass@proxy-host:port
-PROXY_USERNAME = os.getenv("PROXY_USERNAME")
-PROXY_PASSWORD = os.getenv("PROXY_PASSWORD")
 
 # ── FastAPI app ──────────────────────────────
 app = FastAPI(title="ZenTube AI API")
@@ -38,15 +35,7 @@ app.add_middleware(
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 openai_client = OpenAI()
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=400)
-if PROXY_URL:
-    ytt_api = YouTubeTranscriptApi(
-        proxy_config=GenericProxyConfig(
-            http_url=PROXY_URL,
-            https_url=PROXY_URL,
-        )
-    )
-else:
-    ytt_api = YouTubeTranscriptApi()
+
 
 
 # ── Pydantic models ─────────────────────────
@@ -107,18 +96,21 @@ def index_video(req: IndexRequest):
 
     # 2. Load transcript via youtube-transcript-api (with proxy support)
     try:
-        transcript = ytt_api.fetch(video_id)
-        full_text = " ".join([snippet.text for snippet in transcript])
+        loader = YoutubeLoader.from_youtube_url(
+            req.youtube_url,
+            add_video_info=False,
+        )
+        documents = loader.load()
     except Exception as e:
         raise HTTPException(
             status_code=422,
             detail=f"Failed to load transcript for video {video_id}. Make sure the video has captions enabled. Error: {str(e)}",
         )
 
-    if not full_text.strip():
+    if not documents:
         raise HTTPException(status_code=422, detail="No transcript found for this video.")
 
-    documents = [Document(page_content=full_text, metadata={"source": video_id})]
+    
 
     # 3. Split into chunks
     chunks = text_splitter.split_documents(documents=documents)
